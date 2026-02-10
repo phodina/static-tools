@@ -1,5 +1,4 @@
 name: Build and Release
-
 on:
   push:
     branches: [ main, master ]
@@ -7,10 +6,17 @@ on:
       - 'v*'
   pull_request:
     branches: [ main, master ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          - name: e2fsprogs-static
+            tarball: e2fsprogs-static
+
+          - name: libblkid-static
+            tarball: libblkid-static
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -21,18 +27,17 @@ jobs:
         nix_path: nixpkgs=channel:nixos-unstable
 
     - name: Build with Nix
-      run: nix build
+      run: nix build .#${{ matrix.package.name }} --out-link result
 
     - name: Create tarball
       run: |
-        tar -czf e2fsprogs-static-${{ github.ref_name }}.tar.gz -C result-bin .
+        tar -czf ${{ matrix.package.tarball }}-${{ github.ref_name }}.tar.gz -C result-bin .
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: e2fsprogs-static-${{ github.ref_name }}
-        path: e2fsprogs-static-${{ github.ref_name }}.tar.gz
-
+        name: ${{ matrix.package.tarball }}-${{ github.ref_name }}
+        path: ${{ matrix.package.tarball }}-${{ github.ref_name }}.tar.gz
   release:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
@@ -43,22 +48,21 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Nix
-      uses: cachix/install-nix-action@v27
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
       with:
-        nix_path: nixpkgs=channel:nixos-unstable
+        path: artifacts
 
-    - name: Build with Nix
-      run: nix build
-
-    - name: Create tarball
+    - name: Prepare release files
       run: |
-        tar -czf e2fsprogs-static-${{ github.ref_name }}.tar.gz -C result-bin .
+        mkdir -p release-files
+        find artifacts -name "*.tar.gz" -exec cp {} release-files/ \;
+        ls -lah release-files/
 
     - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
-        files: e2fsprogs-static-${{ github.ref_name }}.tar.gz
+        files: release-files/*.tar.gz
         generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
