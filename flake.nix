@@ -14,7 +14,7 @@
         packages = {
           default = pkgs.pkgsStatic.e2fsprogs;
           e2fsprogs-static = pkgs.pkgsStatic.e2fsprogs;
-          libblkid-static = pkgs.pkgsStatic.util-linux;
+          libblkid-static = pkgs.pkgsStatic.util-linux.lib;
         };
       }
     );
