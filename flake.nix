@@ -9,12 +9,19 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
+        libblkid-static = pkgs.symlinkJoin {
+          name = "libblkid-static";
+          paths = [
+            pkgs.pkgsStatic.util-linux.lib
+            pkgs.pkgsStatic.util-linux.dev
+          ];
+        };
       in
       {
         packages = {
           default = pkgs.pkgsStatic.e2fsprogs;
           e2fsprogs-static = pkgs.pkgsStatic.e2fsprogs;
-          libblkid-static = pkgs.pkgsStatic.util-linux.lib;
+          libblkid-static = libblkid-static;
         };
       }
     );
