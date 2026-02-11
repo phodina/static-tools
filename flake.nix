@@ -10,7 +10,11 @@
         pkgs = nixpkgs.legacyPackages.${system};
         
         libblkid-static = pkgs.runCommand "libblkid-static" {} ''
-          mkdir -p $out
+          mkdir -p $out/lib $out/include
+
+          if [ -d "${pkgs.pkgsStatic.stdenv.cc.libc.dev}/include" ]; then
+            cp -rL ${pkgs.pkgsStatic.stdenv.cc.libc.dev}/include/* $out/include/
+          fi
 
           if [ -d "${pkgs.pkgsStatic.util-linux.lib}/lib" ]; then
             cp -rL ${pkgs.pkgsStatic.util-linux.lib}/lib $out/
