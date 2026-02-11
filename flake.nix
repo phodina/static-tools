@@ -9,13 +9,17 @@
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
-        libblkid-static = pkgs.symlinkJoin {
-          name = "libblkid-static";
-          paths = [
-            pkgs.pkgsStatic.util-linux.lib
-            pkgs.pkgsStatic.util-linux.dev
-          ];
-        };
+        libblkid-static = pkgs.runCommand "libblkid-static" {} ''
+          mkdir -p $out
+
+          if [ -d "${pkgs.pkgsStatic.util-linux.lib}/lib" ]; then
+            cp -rL ${pkgs.pkgsStatic.util-linux.lib}/lib $out/
+          fi
+
+          if [ -d "${pkgs.pkgsStatic.util-linux.dev}/include" ]; then
+            cp -rL ${pkgs.pkgsStatic.util-linux.dev}/include $out/
+          fi
+        '';
       in
       {
         packages = {
