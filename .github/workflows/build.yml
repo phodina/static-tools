@@ -18,7 +18,7 @@ jobs:
 
           - name: libblkid-static
             tarball: libblkid-static
-            result_dir: result-lib
+            result_dir: result
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
