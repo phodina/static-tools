@@ -15,10 +15,12 @@ jobs:
           - name: e2fsprogs-static
             tarball: e2fsprogs-static
             result_dir: result-bin
+            cross: "--system aarch64-linux"
 
           - name: libblkid-static
             tarball: libblkid-static
             result_dir: result
+            cross: "--system aarch64-linux"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -27,9 +29,11 @@ jobs:
       uses: cachix/install-nix-action@v27
       with:
         nix_path: nixpkgs=channel:nixos-unstable
+        extra_nix_config: |
+          extra-platforms = aarch64-linux
 
     - name: Build with Nix
-      run: nix build .#${{ matrix.package.name }} --out-link result
+      run: nix build .#${{ matrix.package.name }} ${{ matrix.package.cross }} --out-link result
 
     - name: Create tarball
       run: |
