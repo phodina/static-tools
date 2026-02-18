@@ -5,21 +5,22 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    flake-utils.lib.eachSystem [
+      "x86_64-linux"
+      "aarch64-linux"
+      "riscv64-linux"
+    ] (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         
         libblkid-static = pkgs.runCommand "libblkid-static" {} ''
           mkdir -p $out/lib $out/include
-
           if [ -d "${pkgs.pkgsStatic.stdenv.cc.libc.dev}/include" ]; then
             cp -rL ${pkgs.pkgsStatic.stdenv.cc.libc.dev}/include/* $out/include/
           fi
-
           if [ -d "${pkgs.pkgsStatic.util-linux.lib}/lib" ]; then
             cp -rL ${pkgs.pkgsStatic.util-linux.lib}/lib $out/
           fi
-
           if [ -d "${pkgs.pkgsStatic.util-linux.dev}/include" ]; then
             cp -rL ${pkgs.pkgsStatic.util-linux.dev}/include $out/
           fi
