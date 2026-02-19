@@ -15,7 +15,7 @@ jobs:
         package:
           - name: e2fsprogs-static
             tarball: e2fsprogs-static
-            result_dir: result/bin
+            result_dir: result-bin/bin
           - name: libblkid-static
             tarball: libblkid-static
             result_dir: result
